@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  admin
+  manager
+  user
+}
+
+enum UserStatus {
+  active
+  inactive
+  suspended
+}
+
+enum FeedbackType {
+  performance
+  behavior
+  project
+  Type360 @map("360")
+}
+
+enum FeedbackStatus {
+  pending
+  in_review
+  approved
+  rejected
+}
+
+enum Priority {
+  low
+  medium
+  high
+  critical
+}
+
+enum TeamMemberRole {
+  member
+  leader
+  specialist
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  role        UserRole
+  status      UserStatus
+  department  String
+  position    String
+  avatar      String?
+  createdAt   DateTime @default(now())
+  lastLogin   DateTime?
+
+  givenFeedbacks     Feedback[]      @relation("GiverFeedbacks")
+  receivedFeedbacks  Feedback[]      @relation("ReceiverFeedbacks")
+  teamMemberships    TeamMember[]
+  feedbackComments   FeedbackComment[]
+  auditLogs          AuditLog[]
+  managedTeams       Team[]
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  managerId   String
+  createdAt   DateTime @default(now())
+  status      String   // 'active' | 'inactive'
+
+  manager User @relation(fields: [managerId], references: [id])
+  members TeamMember[]
+  feedbacks Feedback[]
+}
+
+model TeamMember {
+  id       String         @id @default(cuid())
+  teamId   String
+  userId   String
+  role     TeamMemberRole
+  joinedAt DateTime       @default(now())
+
+  team Team @relation(fields: [teamId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([teamId, userId])
+}
+
+model Feedback {
+  id           String         @id @default(cuid())
+  type         FeedbackType
+  giverId      String
+  receiverId   String
+  teamId       String?
+  title        String
+  description  String
+  rating       Int
+  priority     Priority
+  status       FeedbackStatus
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  giver         User                @relation("GiverFeedbacks", fields: [giverId], references: [id])
+  receiver      User                @relation("ReceiverFeedbacks", fields: [receiverId], references: [id])
+  team          Team?               @relation(fields: [teamId], references: [id])
+  competencies  CompetencyRating[]
+  comments      FeedbackComment[]
+}
+
+model CompetencyRating {
+  id             String   @id @default(cuid())
+  feedbackId     String
+  competencyId   String
+  competencyName String
+  rating         Int
+  comments       String?
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id])
+}
+
+model FeedbackComment {
+  id         String   @id @default(cuid())
+  feedbackId String
+  userId     String
+  content    String
+  createdAt  DateTime @default(now())
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  resource  String
+  details   String
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
