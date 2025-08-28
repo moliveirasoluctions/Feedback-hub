@@ -9,7 +9,7 @@
       "preview": "vite preview",
       "dev:server": "tsx watch src/server.ts",
       "dev:start": "concurrently \"npm:dev\" \"npm:dev:server\"",
-      "build": "prisma generate && prisma migrate deploy && vite build",
+      "build": "npx prisma generate && npx prisma migrate deploy && vite build",
       "start": "tsx src/server.ts"
     },
     "dependencies": {
