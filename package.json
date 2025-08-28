@@ -4,12 +4,13 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "lint": "eslint .",
-        "preview": "vite preview",
-        "dev:server": "tsx watch src/server.ts",
-      "start": "concurrently \"npm:dev\" \"npm:dev:server\""
+      "dev": "vite",
+      "lint": "eslint .",
+      "preview": "vite preview",
+      "dev:server": "tsx watch src/server.ts",
+      "dev:start": "concurrently \"npm:dev\" \"npm:dev:server\"",
+      "build": "prisma generate && prisma migrate deploy && vite build",
+      "start": "tsx src/server.ts"
     },
     "dependencies": {
         "@prisma/client": "^6.15.0",
