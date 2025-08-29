@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock, User, Edit, Eye } from 'lucide-react';
+import { Star, Clock, User, Edit, Eye, MessageSquare } from 'lucide-react';
 import { Feedback } from '@/Types';
 
 interface FeedbackCardProps {

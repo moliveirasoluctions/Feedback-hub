@@ -9,7 +9,7 @@ export function UserManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/users');
+        const response = await fetch('/api/users');
         if (!response.ok) {
           throw new Error('Failed to fetch users');
         }
@@ -60,7 +60,7 @@ export function UserManagement() {
   const handleDeleteUser = async (userId: string) => {
     if (confirm('Tem certeza que deseja excluir este usuário?')) {
       try {
-        const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
+        const response = await fetch(`/api/users/${userId}`, {
           method: 'DELETE',
         });
         if (!response.ok) {
@@ -75,7 +75,7 @@ export function UserManagement() {
 
   const handleSaveUser = async (userData: Partial<User>) => {
     const method = modalMode === 'create' ? 'POST' : 'PUT';
-    const url = modalMode === 'create' ? 'http://localhost:3001/api/users' : `http://localhost:3001/api/users/${selectedUser?.id}`;
+    const url = modalMode === 'create' ? '/api/users' : `/api/users/${selectedUser?.id}`;
 
     try {
       const response = await fetch(url, {

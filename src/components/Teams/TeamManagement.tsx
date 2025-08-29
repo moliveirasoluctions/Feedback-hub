@@ -13,7 +13,7 @@ export function TeamManagement() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/teams');
+        const response = await fetch('/api/teams');
         if (!response.ok) {
           throw new Error('Failed to fetch teams');
         }
@@ -52,7 +52,7 @@ export function TeamManagement() {
 
   const handleSaveTeam = async (teamData: Partial<Team> & { managerId?: string; memberIds?: string[] }) => {
     const method = modalMode === 'create' ? 'POST' : 'PUT';
-    const url = modalMode === 'create' ? 'http://localhost:3001/api/teams' : `http://localhost:3001/api/teams/${selectedTeam?.id}`;
+    const url = modalMode === 'create' ? '/api/teams' : `/api/teams/${selectedTeam?.id}`;
 
     try {
       const response = await fetch(url, {
@@ -84,7 +84,7 @@ export function TeamManagement() {
   const handleDeleteTeam = async (teamId: string) => {
     if (confirm('Tem certeza que deseja excluir esta equipe?')) {
       try {
-        const response = await fetch(`http://localhost:3001/api/teams/${teamId}`, {
+        const response = await fetch(`/api/teams/${teamId}`, {
           method: 'DELETE',
         });
         if (!response.ok) {

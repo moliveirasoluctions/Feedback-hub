@@ -24,7 +24,7 @@ export function TeamModal({ isOpen, onClose, onSave, team, mode }: TeamModalProp
     if (isOpen) {
       const fetchUsers = async () => {
         try {
-          const response = await fetch('http://localhost:3001/api/users');
+          const response = await fetch('/api/users');
           if (!response.ok) {
             throw new Error('Failed to fetch users');
           }
