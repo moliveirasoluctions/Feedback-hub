@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Users } from 'lucide-react';
-import { Team, User } from '../../types';
+import { Team, User } from '@/Types';
 
 interface TeamModalProps {
   isOpen: boolean;

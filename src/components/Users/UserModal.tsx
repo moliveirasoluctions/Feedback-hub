@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload } from 'lucide-react';
-import { User, UserRole, UserStatus } from '../../types';
+import { User, UserRole, UserStatus } from '@/Types';
 
 interface UserModalProps {
   isOpen: boolean;

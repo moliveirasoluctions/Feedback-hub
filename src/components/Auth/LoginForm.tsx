@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/Context/AuthContext';
 
 export function LoginForm() {
   const { login } = useAuth();

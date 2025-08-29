@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { userRoutes } from './routes/users';
-import { teamRoutes } from './routes/teams';
+import userRoutes from './routes/users';
+import teamRoutes from './routes/teams';
 
 const app = express();
 const port = process.env.PORT || 3001;

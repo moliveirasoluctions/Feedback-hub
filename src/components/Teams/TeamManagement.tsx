@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Users, Crown, Star, Edit, Eye, Trash2 } from 'lucide-react';
-import { Team } from '../../types';
+import { Team } from '@/Types';
 import { TeamModal } from './TeamModal';
 
 export function TeamManagement() {

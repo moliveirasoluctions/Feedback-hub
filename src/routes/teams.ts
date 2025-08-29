@@ -15,11 +15,13 @@ router.get('/', async (_req, res) => {
 
 // POST /api/teams
 router.post('/', async (req, res) => {
-  const { name, managerId, memberIds } = req.body;
+  const { name, managerId, memberIds, description, status } = req.body;
   try {
     const newTeam = await prisma.team.create({
       data: {
         name,
+        description: description || '',
+        status: status || 'active',
         manager: { connect: { id: managerId } },
         members: { connect: memberIds.map((id: string) => ({ id })) },
       },
@@ -66,4 +68,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-export { router as teamRoutes };
+export default router;

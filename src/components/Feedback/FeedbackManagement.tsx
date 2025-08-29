@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Filter, Star, Clock, User, MessageSquare } from 'lucide-react';
-import { Feedback, FeedbackType, FeedbackStatus, Priority } from '../../types';
+import { Feedback, FeedbackType, FeedbackStatus, Priority } from '@/Types';
 import { FeedbackModal } from './FeedbackModal';
 import { FeedbackCard } from './FeedbackCard';
 

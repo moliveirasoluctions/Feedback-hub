@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { LoginForm } from './components/Auth/LoginForm';
-import { Sidebar } from './components/Layout/Sidebar';
-import { Header } from './components/Layout/Header';
-import { Dashboard } from './components/Dashboard/Dashboard';
-import { UserManagement } from './components/Users/UserManagement';
-import { FeedbackManagement } from './components/Feedback/FeedbackManagement';
-import { TeamManagement } from './components/Teams/TeamManagement';
-import { Reports } from './components/Reports/Reports';
-import { UserProfile } from './components/Profile/UserProfile';
-import { AuditLogs } from './components/Audit/AuditLogs';
+import { AuthProvider, useAuth } from '@/Context/AuthContext';
+import { LoginForm } from '@/components/Auth/LoginForm';
+import { Sidebar } from '@/components/Layout/Sidebar';
+import { Header } from '@/components/Layout/Header';
+import { Dashboard } from '@/components/Dashboard/Dashboard';
+import { UserManagement } from '@/components/Users/UserManagemenr';
+import { FeedbackManagement } from '@/components/Feedback/FeedbackManagement';
+import { TeamManagement } from '@/components/Teams/TeamManagement';
+import { Reports } from '@/components/Reports/Reports';
+import { UserProfile } from '@/components/Profile/UserProfile';
+import { AuditLogs } from '@/components/audit/AuditLogs';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();

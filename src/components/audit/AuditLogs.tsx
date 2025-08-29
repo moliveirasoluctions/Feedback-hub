@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, Filter, Search, Calendar, User, Activity } from 'lucide-react';
-import { AuditLog } from '../../types';
+import { AuditLog } from '@/Types';
 
 export function AuditLogs() {
   const [auditLogs] = useState<AuditLog[]>([

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Users, MessageSquare, TrendingUp, Star, BarChart3, Clock } from 'lucide-react';
 import { StatsCard } from './StatsCard';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/Context/AuthContext';
 
 export function Dashboard() {
   const { user } = useAuth();

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Edit, Trash2, Eye, Shield, UserX } from 'lucide-react';
-import { User, UserRole, UserStatus } from '../../types';
+import { User, UserRole, UserStatus } from '@/Types';
 import { UserModal } from './UserModal';
 
 export function UserManagement() {

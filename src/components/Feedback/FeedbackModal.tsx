@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, Plus, Trash2 } from 'lucide-react';
-import { Feedback, FeedbackType, Priority, CompetencyRating } from '../../types';
+import { Feedback, FeedbackType, Priority, CompetencyRating } from '@/Types';
 
 interface FeedbackModalProps {
   isOpen: boolean;
