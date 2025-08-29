@@ -24,6 +24,11 @@
       "noUnusedParameters": true,
       "noFallthroughCasesInSwitch": true
     },
-    "include": ["src"]
+    "include": ["src"],
+  "forceConsistentCasingInFileNames": true,
+  "typeRoots": [
+    "./node_modules/@types",
+    "./src/types"
+  ]
   }
   

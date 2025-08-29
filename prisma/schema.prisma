@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Schema do Prisma para o FeedbackHub
+// Documentação: https://pris.ly/d/prisma-schema
 
 datasource db {
   provider = "postgresql"
@@ -8,78 +8,143 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
+// Enums
 enum UserRole {
-  admin
-  manager
-  user
+  ADMIN
+  MANAGER
+  USER
+  HR
+  TEAM_LEAD
 }
 
 enum UserStatus {
-  active
-  inactive
-  suspended
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_ACTIVATION
+}
+
+enum Department {
+  TI
+  RH
+  FINANCEIRO
+  MARKETING
+  VENDAS
+  OPERACOES
+  DIRETORIA
+  OUTRO
+}
+
+enum TeamStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
 }
 
 enum FeedbackType {
-  performance
-  behavior
-  project
-  Type360 @map("360")
+  PERFORMANCE
+  BEHAVIOR
+  PROJECT
+  FEEDBACK_360 @map("360")
 }
 
 enum FeedbackStatus {
-  pending
-  in_review
-  approved
-  rejected
+  DRAFT
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
 }
 
 enum Priority {
-  low
-  medium
-  high
-  critical
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 enum TeamMemberRole {
-  member
-  leader
-  specialist
+  MEMBER
+  LEADER
+  SPECIALIST
+  MENTOR
 }
 
-model User {
-  id          String   @id @default(cuid())
-  name        String
-  email       String   @unique
-  role        UserRole
-  status      UserStatus
-  department  String
-  position    String
-  avatar      String?
-  createdAt   DateTime @default(now())
-  lastLogin   DateTime?
+// Modelos
 
-  givenFeedbacks     Feedback[]      @relation("GiverFeedbacks")
-  receivedFeedbacks  Feedback[]      @relation("ReceiverFeedbacks")
-  teamMemberships    TeamMember[]
-  feedbackComments   FeedbackComment[]
-  auditLogs          AuditLog[]
-  managedTeams       Team[]
+model User {
+  id              String          @id @default(cuid())
+  name            String
+  email           String          @unique
+  passwordHash    String
+  role            UserRole
+  status          UserStatus
+  department      Department
+  position        String
+  avatar          String?
+  phone           String?
+  lastLogin       DateTime?
+  lastPasswordChange DateTime?
+  resetToken      String?
+  resetTokenExpires DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  // Feedbacks
+  givenFeedbacks      Feedback[]          @relation("GiverFeedbacks")
+  receivedFeedbacks   Feedback[]          @relation("ReceiverFeedbacks")
+  
+  // Comments
+  comments          FeedbackComment[]
+  editedComments    FeedbackComment[]    @relation("EditedComments")
+  
+  // Teams
+  managedTeams      Team[]              @relation("TeamManager")
+  teamMemberships   TeamMember[]
+  
+  // Competencies
+  competencies      UserCompetency[]
+  assessedCompetencies UserCompetency[]  @relation("AssessedCompetencies")
+  updatedTeamCompetencies TeamCompetency[] @relation("UpdatedTeamCompetencies")
+  
+  // Attachments & History
+  uploadedAttachments FeedbackAttachment[] @relation("UploadedAttachments")
+  feedbackHistory   FeedbackHistory[]
+  
+  // Auth & Notifications
+  passwordResets    PasswordResetToken[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+
+  @@index([email])
+  @@index([status])
+  @@index([department])
 }
 
 model Team {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  managerId   String
-  createdAt   DateTime @default(now())
-  status      String   // 'active' | 'inactive'
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  managerId    String
+  department   Department
+  status       TeamStatus    @default(ACTIVE)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  manager User @relation(fields: [managerId], references: [id])
-  members TeamMember[]
-  feedbacks Feedback[]
+  // Relations
+  manager     User          @relation("TeamManager", fields: [managerId], references: [id])
+  members     TeamMember[]
+  feedbacks   Feedback[]
+  competencies TeamCompetency[]
+
+  @@unique([name, department])
+  @@index([status])
+  @@index([department])
 }
 
 model TeamMember {
@@ -96,55 +161,221 @@ model TeamMember {
 }
 
 model Feedback {
-  id           String         @id @default(cuid())
-  type         FeedbackType
-  giverId      String
-  receiverId   String
-  teamId       String?
-  title        String
-  description  String
-  rating       Int
-  priority     Priority
-  status       FeedbackStatus
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id              String             @id @default(cuid())
+  type            FeedbackType
+  giverId         String
+  receiverId      String
+  teamId          String?
+  title           String
+  description     String
+  rating          Int
+  priority        Priority
+  status          FeedbackStatus     @default(DRAFT)
+  isAnonymous     Boolean            @default(false)
+  isConfidential  Boolean            @default(false)
+  dueDate         DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
-  giver         User                @relation("GiverFeedbacks", fields: [giverId], references: [id])
-  receiver      User                @relation("ReceiverFeedbacks", fields: [receiverId], references: [id])
-  team          Team?               @relation(fields: [teamId], references: [id])
-  competencies  CompetencyRating[]
-  comments      FeedbackComment[]
+  // Relations
+  giver           User              @relation("GiverFeedbacks", fields: [giverId], references: [id])
+  receiver        User              @relation("ReceiverFeedbacks", fields: [receiverId], references: [id])
+  team            Team?             @relation(fields: [teamId], references: [id])
+  competencies    CompetencyRating[]
+  comments        FeedbackComment[]
+  attachments     FeedbackAttachment[]
+  history         FeedbackHistory[]
+
+  @@index([giverId])
+  @@index([receiverId])
+  @@index([teamId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Competency {
+  id            String              @id @default(cuid())
+  name          String
+  description   String?
+  category      String
+  isActive      Boolean             @default(true)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  // Relations
+  userRatings   UserCompetency[]
+  teamRatings   TeamCompetency[]
+  feedbacks     CompetencyRating[]
+
+  @@unique([name, category])
+  @@index([isActive])
 }
 
 model CompetencyRating {
-  id             String   @id @default(cuid())
+  id             String      @id @default(cuid())
   feedbackId     String
   competencyId   String
-  competencyName String
-  rating         Int
+  rating         Int         @db.SmallInt
   comments       String?
+  createdAt      DateTime    @default(now())
 
-  feedback Feedback @relation(fields: [feedbackId], references: [id])
+  // Relations
+  feedback      Feedback    @relation(fields: [feedbackId], references: [id])
+  competency    Competency  @relation(fields: [competencyId], references: [id])
+
+  @@index([feedbackId])
+  @@index([competencyId])
+}
+
+model UserCompetency {
+  id            String      @id @default(cuid())
+  userId        String
+  competencyId  String
+  rating        Int         @db.SmallInt
+  lastAssessed  DateTime    @default(now())
+  assessedBy    String
+  comments      String?
+
+  // Relations
+  user         User       @relation(fields: [userId], references: [id])
+  competency   Competency @relation(fields: [competencyId], references: [id])
+  assessedByUser User     @relation("AssessedCompetencies", fields: [assessedBy], references: [id])
+
+  @@unique([userId, competencyId])
+  @@index([userId])
+  @@index([competencyId])
+}
+
+model TeamCompetency {
+  id            String      @id @default(cuid())
+  teamId        String
+  competencyId  String
+  targetLevel   Int         @db.SmallInt
+  importance    Priority
+  updatedAt     DateTime    @updatedAt
+  updatedBy     String
+
+  // Relations
+  team         Team       @relation(fields: [teamId], references: [id])
+  competency   Competency @relation(fields: [competencyId], references: [id])
+  updatedByUser User      @relation("UpdatedTeamCompetencies", fields: [updatedBy], references: [id])
+
+  @@unique([teamId, competencyId])
+  @@index([teamId])
+  @@index([competencyId])
 }
 
 model FeedbackComment {
-  id         String   @id @default(cuid())
-  feedbackId String
-  userId     String
-  content    String
-  createdAt  DateTime @default(now())
+  id           String   @id @default(cuid())
+  feedbackId   String
+  userId       String
+  content      String    @db.Text
+  isInternal   Boolean   @default(false)
+  isEdited     Boolean   @default(false)
+  editedAt     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  feedback Feedback @relation(fields: [feedbackId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  // Relations
+  feedback    Feedback  @relation(fields: [feedbackId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  editedBy    User?     @relation("EditedComments", fields: [editedById], references: [id])
+  editedById   String?
+
+  @@index([feedbackId])
+  @@index([userId])
+}
+
+model FeedbackAttachment {
+  id           String   @id @default(cuid())
+  feedbackId   String
+  fileName     String
+  fileUrl      String
+  fileType     String
+  fileSize     Int
+  uploadedById String
+  uploadedAt   DateTime @default(now())
+
+  // Relations
+  feedback    Feedback  @relation(fields: [feedbackId], references: [id])
+  uploadedBy  User      @relation("UploadedAttachments", fields: [uploadedById], references: [id])
+
+  @@index([feedbackId])
+}
+
+model FeedbackHistory {
+  id           String   @id @default(cuid())
+  feedbackId   String
+  userId       String
+  action       String
+  changedField String?
+  oldValue     String?
+  newValue     String?
+  timestamp    DateTime @default(now())
+
+  // Relations
+  feedback    Feedback  @relation(fields: [feedbackId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([feedbackId])
+  @@index([userId])
 }
 
 model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  resource    String
+  resourceId  String?
+  ipAddress   String?
+  userAgent   String?
+  details     Json?
+  metadata    Json?
+  timestamp   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([timestamp])
+}
+
+model Notification {
+  id           String      @id @default(cuid())
+  userId       String
+  type         String
+  title        String
+  message      String
+  isRead       Boolean     @default(false)
+  relatedType  String?
+  relatedId    String?
+  actionUrl    String?
+  createdAt    DateTime    @default(now())
+  readAt       DateTime?
+
+  // Relations
+  user         User        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model PasswordResetToken {
   id        String   @id @default(cuid())
   userId    String
-  action    String
-  resource  String
-  details   String
-  timestamp DateTime @default(now())
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
 }

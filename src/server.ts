@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import userRoutes from './routes/users';
 import teamRoutes from './routes/teams';
+import feedbackRoutes from './routes/api/feedback.routes';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -13,6 +14,7 @@ app.use(express.json());
 // API routes
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/feedbacks', feedbackRoutes);
 
 // Serve static files from the React build directory
 const __dirname = path.resolve();
